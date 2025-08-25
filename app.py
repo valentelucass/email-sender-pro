@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import io
 import os
+import traceback
 
 # Reuso do core existente
 from src.email_sender import enviar_em_lote
@@ -86,6 +87,11 @@ def api_send():
             daily_limit = CONF_DAILY_LIMIT
         daily_limit = max(0, min(100, daily_limit))
 
+        # Em ambientes serverless (Vercel), evite timeouts: cap de 1 e sem espera
+        is_prod = os.getenv('VERCEL_ENV') == 'production'
+        if is_prod:
+            daily_limit = min(daily_limit, 1)
+
         # Validacoes básicas
         if not subject:
             return jsonify({"error": "'subject' é obrigatório"}), 400
@@ -96,7 +102,11 @@ def api_send():
 
         # Ler Excel em memória
         import pandas as pd
-        df = pd.read_excel(io.BytesIO(data))
+        try:
+            df = pd.read_excel(io.BytesIO(data), engine="openpyxl")
+        except Exception:
+            traceback.print_exc()
+            return jsonify({"error": "Falha ao ler o Excel. Verifique o formato (.xlsx) e as colunas."}), 400
 
         # Normalização de nomes de colunas (case-insensitive, remove pontuação simples)
         def _norm(s: str) -> str:
@@ -155,11 +165,14 @@ def api_send():
             pass
 
         results = []
+        # Escolher intervalo adequado ao ambiente
+        intervalo_envio = 0 if is_prod else SEND_INTERVAL
+
         for i, sucesso in enviar_em_lote(
             df_envio,
             subject,
             text_template,
-            intervalo=SEND_INTERVAL,
+            intervalo=intervalo_envio,
             anexos=None,
             html_template=html_template,
             smtp_user=smtp_user,
@@ -190,6 +203,7 @@ def api_send():
         return jsonify({"summary": summary, "results": results})
 
     except Exception as e:
+        traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
 

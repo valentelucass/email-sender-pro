@@ -1,3 +1,16 @@
+<!-- PORTFOLIO-FEATURED
+title: Email Sender Pro
+description: Ferramenta web para envio de e-mails em massa de forma simples e eficiente, com suporte a personalização via planilha e integração com Gmail.
+technologies: Python, Flask, HTML5, CSS3, JavaScript
+demo: https://email-sender-pro.vercel.app/
+highlight: true
+image: foto.png
+-->
+
+<p align="center">
+  <img src="foto.png" alt="Capa do projeto" width="1200">
+</p>
+
 # 📨 Email Sender Pro
 
 Ferramenta web para envio de e-mails em massa de forma simples e eficiente. Desenvolvida para facilitar o disparo de comunicações personalizadas para listas de contatos.
@@ -61,11 +74,11 @@ Exemplo:
    - Digite um nome (ex: "Email Sender")
    - Clique em "Gerar" e copie a senha de 16 caracteres
 
-3. **Configure no sistema**
-   - E-mail: Seu endereço Gmail completo
-   - Senha: A senha de 16 caracteres gerada
-   - Servidor: `smtp.gmail.com`
-   - Porta: `587`
+3. **Preencha no formulário (SMTP Gmail)**
+   - Seu Gmail (smtp_user): seuemail@gmail.com
+   - Senha de App (smtp_pass): senha de 16 caracteres
+   - Servidor (smtp_server): `smtp.gmail.com`
+   - Porta (smtp_port): `587`
 
 ### Enviando E-mails
 
@@ -89,6 +102,7 @@ Exemplo:
    - Revise as configurações
    - Clique em "Enviar"
    - Acompanhe o progresso na tela
+   - Observação (Vercel produção): uma chamada envia até 1 email (proteção contra timeout). Para mais envios, repita o processo.
 
 ## 🛠️ Desenvolvimento
 
@@ -121,7 +135,8 @@ SECRET_KEY=sua_chave_secreta_aqui
 
 ## ⚠️ Limitações
 
-- Limite de 500 e-mails por dia (limitação do Gmail)
+- Limite de 100 e-mails por dia (limitação do Gmail)
+- Em produção (Vercel), cada requisição envia até 1 email para evitar timeouts
 - Tamanho máximo de anexo: 25MB
 - Recomenda-se testar com uma pequena lista antes de disparar para muitos contatos
 
@@ -135,7 +150,7 @@ Encontrou um problema ou tem sugestões? Por favor, abra uma issue no repositór
 
 ---
 
-Desenvolvido com ❤️ por [Seu Nome]
+Desenvolvido com ❤️ por Lucas Andrade
 
 **Erro de Autenticação**
 - Use Senha de App, não a senha normal
