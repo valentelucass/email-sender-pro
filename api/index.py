@@ -9,14 +9,13 @@ if root_dir not in sys.path:
 
 # Importa o app do Flask
 from app import app as application
+# Expor também `app` para compatibilidade
+app = application
 
-# Configurações adicionais para produção
+# Configurações adicionais para produção (não fixar SERVER_NAME no Vercel)
 if os.environ.get('VERCEL_ENV') == 'production':
-    application.config.update(
-        PREFERRED_URL_SCHEME='https',
-        SERVER_NAME=os.environ.get('VERCEL_URL', '').lstrip('https://')
-    )
+    application.config.update(PREFERRED_URL_SCHEME='https')
 
-# Este bloco é necessário para o Vercel
+# Execução local
 if __name__ == "__main__":
     application.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8000)))
