@@ -214,15 +214,32 @@ def enviar_em_lote(
     from_name: str | None = None,
     reply_to: str | None = None,
 ):
-    """Itera sobre os contatos, envia e-mail com template formatado e espera intervalo."""
-    for i, row in contatos.iterrows():
-        nome = str(row.get("Nome", "")).strip()
-        destino = str(row.get("E-mail", "")).strip()
+    """Itera sobre os contatos (DataFrame ou lista de dicts), envia e-mail e espera intervalo.
+
+    Agora aceita:
+    - pandas.DataFrame (via iterrows)
+    - Iterable de dicts com chaves "Nome" e "E-mail"
+
+    Yields: (index, sucesso, destino_email)
+    """
+    # Decide o iterador conforme o tipo de "contatos"
+    if hasattr(contatos, "iterrows"):
+        iterator = contatos.iterrows()
+        get_nome = lambda row: str(row.get("Nome", "")).strip()
+        get_email = lambda row: str(row.get("E-mail", "")).strip()
+    else:
+        iterator = enumerate(contatos)
+        get_nome = lambda row: str((row or {}).get("Nome", "")).strip()
+        get_email = lambda row: str((row or {}).get("E-mail", "")).strip()
+
+    for i, row in iterator:
+        nome = get_nome(row)
+        destino = get_email(row)
 
         # validação simples de e-mail e bloqueio de placeholders
         if not _email_valido(destino):
             print(f"Pulado (e-mail inválido ou placeholder): {destino}")
-            yield i, False
+            yield i, False, destino
             continue
 
         corpo = template.format(nome=nome)
@@ -240,7 +257,7 @@ def enviar_em_lote(
             from_name=from_name,
             reply_to=reply_to,
         )
-        yield i, sucesso
+        yield i, sucesso, destino
         # jitter de 20% para evitar cadência fixa (mínimo 1s)
         jitter = intervalo * random.uniform(-0.2, 0.2)
         espera = max(1, intervalo + jitter)

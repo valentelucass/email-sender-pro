@@ -168,7 +168,7 @@ def api_send():
         # Escolher intervalo adequado ao ambiente
         intervalo_envio = 0 if is_prod else SEND_INTERVAL
 
-        for i, sucesso in enviar_em_lote(
+        for i, sucesso, email_dest in enviar_em_lote(
             df_envio,
             subject,
             text_template,
@@ -183,13 +183,8 @@ def api_send():
             from_name=from_name,
             reply_to=reply_to,
         ):
-            # Captura e-mail para relatório
-            email = None
-            if "E-mail" in df_envio.columns:
-                try:
-                    email = df_envio.loc[i, "E-mail"]
-                except Exception:
-                    email = None
+            # Captura e-mail retornado pelo gerador (compatível com iteráveis não-DataFrame)
+            email = email_dest
             status = "Contatado" if sucesso else "Erro"
             results.append({"index": int(i) if isinstance(i, (int, float)) else str(i), "email": email, "success": bool(sucesso), "status": status})
 
