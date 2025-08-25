@@ -1,7 +1,6 @@
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import io
-import pandas as pd
 import os
 
 # Reuso do core existente
@@ -37,6 +36,21 @@ def index():
 @app.route("/help")
 def help_page():
     return send_from_directory(app.static_folder, "help.html")
+
+
+# Favicon (evita 404/500 em ambientes de produção)
+@app.route("/favicon.ico")
+def favicon():
+    try:
+        return send_from_directory(app.static_folder, "favicon.ico")
+    except Exception:
+        return ("", 204)
+
+
+# Healthcheck simples para plataformas de deploy
+@app.route("/api/health")
+def health():
+    return jsonify({"status": "ok"}), 200
 
 
 @app.route("/api/send", methods=["POST"])
@@ -81,6 +95,7 @@ def api_send():
             return jsonify({"error": "Credenciais SMTP ausentes. Informe Gmail, Senha de App, servidor e porta."}), 400
 
         # Ler Excel em memória
+        import pandas as pd
         df = pd.read_excel(io.BytesIO(data))
 
         # Normalização de nomes de colunas (case-insensitive, remove pontuação simples)
