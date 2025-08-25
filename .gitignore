@@ -1,0 +1,85 @@
+# Environment variables
+.env
+.env.*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+__pycache__
+*.pyo
+*.pyd
+.Python
+
+# Virtual Environment
+.venv
+venv/
+ENV/
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Testing
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+
+# Node
+node_modules/
+.npm
+.pnpm-store/
+.pnp.*
+.yarn/
+.yarn-*
+
+# Vercel
+.vercel
+.vercel_build_output/
+.vercel_build_output/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Local development
+.local/
+
+# Build output
+.next/
+.nuxt/
+.out/
+.svelte-kit/
+.parcel-cache/
+dist/
+build/
+
+# Python specific
+*.so
+.Python
+var/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json

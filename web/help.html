@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ajuda: Como usar seu Gmail (Senha de App)</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    body { margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); min-height: 100vh; }
+    .background-pattern { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%); pointer-events: none; z-index: -1; }
+    .help-container { max-width: 880px; margin: 40px auto; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(148, 163, 184, 0.15); border-radius: 16px; padding: 32px; color: #e5e7eb; backdrop-filter: blur(10px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
+    .help-container h1 { font-size: 32px; margin: 0 0 16px; font-weight: 700; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .help-container p { color: #cbd5e1; line-height: 1.7; margin-bottom: 16px; }
+    .step { margin: 20px 0; padding: 20px; border-left: 4px solid #667eea; background: rgba(102, 126, 234, 0.08); border-radius: 12px; transition: all 0.3s ease; }
+    .step:hover { background: rgba(102, 126, 234, 0.12); transform: translateX(4px); }
+    .step h3 { margin: 0 0 12px; font-size: 20px; color: #f1f5f9; font-weight: 600; }
+    .step ul { margin: 8px 0; padding-left: 20px; }
+    .step li { margin: 6px 0; color: #cbd5e1; }
+    .hint { font-size: 14px; color: #94a3b8; margin-top: 8px; }
+    .links a { color: #93c5fd; text-decoration: underline; transition: color 0.2s ease; }
+    .links a:hover { color: #bfdbfe; }
+    .kbd { display: inline-block; padding: 4px 8px; border-radius: 6px; background: rgba(148, 163, 184, 0.15); border: 1px solid rgba(148, 163, 184, 0.25); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 13px; color: #f1f5f9; font-weight: 500; }
+    .faq { margin-top: 32px; padding-top: 24px; border-top: 1px solid rgba(148, 163, 184, 0.15); }
+    .faq h2 { font-size: 24px; margin-bottom: 16px; color: #f1f5f9; font-weight: 600; }
+    .faq dt { font-weight: 600; margin-top: 16px; color: #f1f5f9; font-size: 16px; }
+    .faq dd { margin-left: 0; margin-bottom: 12px; color: #cbd5e1; line-height: 1.6; }
+    .back { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 20px; color: #a5b4fc; text-decoration: underline; transition: all 0.2s ease; padding: 8px 12px; border-radius: 8px; }
+    .back:hover { color: #c7d2fe; background: rgba(165, 180, 252, 0.1); text-decoration: none; }
+    @media (max-width: 768px) { .help-container { margin: 20px; padding: 24px; } .help-container h1 { font-size: 28px; } .step { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <div class="background-pattern"></div>
+  <div class="help-container">
+    <a class="back" href="index.html" title="Voltar">
+      ← Voltar para o envio
+    </a>
+    <h1>Usar Gmail com Senha de App (SMTP)</h1>
+    <p>
+      Para enviar emails pelo seu Gmail com segurança, o Google exige o uso de <strong>Senha de App</strong>.
+      É uma senha especial (16 caracteres) diferente da sua senha normal e funciona somente com apps/SMTP.
+    </p>
+
+    <div class="step">
+      <h3>1) Ative a verificação em 2 etapas (2FA)</h3>
+      <p>Abra o link abaixo e ative a verificação em 2 etapas na sua Conta Google.</p>
+      <p class="links"><a href="https://myaccount.google.com/signinoptions/two-step-verification" target="_blank" rel="noopener">Ativar Verificação em 2 Etapas</a></p>
+      <p class="hint">Sem 2FA, o Google não permite criar Senhas de App.</p>
+    </div>
+
+    <div class="step">
+      <h3>2) Gere uma Senha de App</h3>
+      <p>Acesse a página de Senhas de App e gere uma senha para "Mail". Você pode nomear como "SMTP script".</p>
+      <p class="links"><a href="https://myaccount.google.com/apppasswords" target="_blank" rel="noopener">Abrir Senhas de App</a></p>
+      <ul>
+        <li>Selecione app: <span class="kbd">Mail</span></li>
+        <li>Selecione dispositivo: <span class="kbd">Outro (Personalizado)</span> — ex.: SMTP Script</li>
+        <li>Gere e <strong>copie a senha</strong> (16 caracteres). Não inclua espaços.</li>
+      </ul>
+    </div>
+
+    <div class="step">
+      <h3>3) Preencha no formulário de envio</h3>
+      <ul>
+        <li><strong>Seu Gmail:</strong> seuemail@gmail.com</li>
+        <li><strong>Senha de App:</strong> cole a senha de 16 caracteres (sem espaços)</li>
+        <li><strong>Servidor SMTP:</strong> <span class="kbd">smtp.gmail.com</span></li>
+        <li><strong>Porta:</strong> <span class="kbd">587</span></li>
+        <li><strong>Reply-To:</strong> o email que receberá respostas</li>
+      </ul>
+    </div>
+
+    <div class="step">
+      <h3>4) Envie e acompanhe o log</h3>
+      <p>Faça um teste com poucos contatos para validar. O painel mostrará sucesso/falhas por destinatário.</p>
+    </div>
+
+    <div class="faq">
+      <h2>FAQ e Solução de Problemas</h2>
+      <dl>
+        <dt>Recebi erro de autenticação (534/535).</dt>
+        <dd>Verifique se está usando <strong>Senha de App</strong> (não a senha normal) e se a 2FA está ativa.</dd>
+
+        <dt>Timeout ou falha ao conectar.</dt>
+        <dd>Confirme servidor <span class="kbd">smtp.gmail.com</span> e porta <span class="kbd">587</span>. Sua rede pode bloquear SMTP — teste outra rede/VPN.</dd>
+
+        <dt>Alguns emails não chegam.</dt>
+        <dd>Revise o conteúdo, evite palavras de spam, reduza o volume, e aqueça o domínio. Confira também a pasta de spam.</dd>
+
+        <dt>Posso usar outro provedor?</dt>
+        <dd>Sim. Informe servidor e porta do seu provedor/SMTP (ex.: Outlook, Yahoo, provedores dedicados). Use credenciais compatíveis.</dd>
+
+        <dt>Minha senha vaza?</dt>
+        <dd>As credenciais são usadas apenas durante o envio (em memória) e não são salvas no servidor. Para mais segurança, opere sob HTTPS quando exposto publicamente.</dd>
+      </dl>
+    </div>
+
+    <p class="hint">Documentação oficial Google: <a class="links" href="https://support.google.com/accounts/answer/185833" target="_blank" rel="noopener">Sobre Senhas de App</a></p>
+  </div>
+</body>
+</html>
