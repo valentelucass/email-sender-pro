@@ -2,7 +2,7 @@
   "version": 2,
   "builds": [
     {
-      "src": "app.py",
+      "src": "api/index.py",
       "use": "@vercel/python"
     },
     {
@@ -13,17 +13,17 @@
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/app.py"
+      "dest": "/api/index.py"
     },
     {
       "src": "/(.*)",
-      "dest": "/app.py"
+      "dest": "/api/index.py"
     }
   ],
   "env": {
-    "VERCEL_ENV": "production",
+    "FLASK_APP": "api/index.py",
+    "FLASK_ENV": "production",
     "PYTHONUNBUFFERED": "true"
   },
-  "buildCommand": "pip install -r requirements.txt",
-  "outputDirectory": "web"
+  "buildCommand": "pip install -r requirements.txt"
 }
