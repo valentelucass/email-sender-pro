@@ -100,76 +100,73 @@ def api_send():
         if not smtp_user or not smtp_pass or not smtp_server or not smtp_port:
             return jsonify({"error": "Credenciais SMTP ausentes. Informe Gmail, Senha de App, servidor e porta."}), 400
 
-        # Ler Excel em memória
-        import pandas as pd
+        # Ler Excel em memória com openpyxl (sem pandas)
         try:
-            df = pd.read_excel(io.BytesIO(data), engine="openpyxl")
+            from openpyxl import load_workbook
+            wb = load_workbook(io.BytesIO(data), read_only=True, data_only=True)
+            ws = wb.active
+            rows = list(ws.iter_rows(values_only=True))
+            if not rows:
+                return jsonify({"error": "Planilha vazia"}), 400
+            headers = [str(h).strip() if h is not None else "" for h in rows[0]]
+            # Normalização de nomes de colunas
+            def _norm(s: str) -> str:
+                return (
+                    str(s)
+                    .strip()
+                    .lower()
+                    .replace("-", "")
+                    .replace("_", "")
+                    .replace(" ", "")
+                )
+            colmap = {idx: _norm(name) for idx, name in enumerate(headers)}
+            # Descobrir índices de colunas
+            idx_email = None
+            idx_nome = None
+            idx_status = None
+            for idx, normed in colmap.items():
+                if idx_email is None and "mail" in normed:
+                    idx_email = idx
+                if normed in {"nome", "name"}:
+                    idx_nome = idx
+                if normed == "status":
+                    idx_status = idx
+            if idx_email is None:
+                return jsonify({"error": "Planilha inválida: coluna de e-mail ausente. Use 'E-mail' ou 'Email'."}), 400
+            # Construir lista de contatos (com Status default)
+            contatos_raw = []
+            total = 0
+            pendentes = 0
+            for r in rows[1:]:
+                total += 1
+                nome_val = (r[idx_nome] if idx_nome is not None and idx_nome < len(r) else "") if r else ""
+                email_val = (r[idx_email] if idx_email is not None and idx_email < len(r) else "") if r else ""
+                status_val = (r[idx_status] if idx_status is not None and idx_status < len(r) else "Aguardando") if r else "Aguardando"
+                email_str = str(email_val or "").strip()
+                status_str = str(status_val or "Aguardando").strip()
+                nome_str = str(nome_val or "").strip()
+                if status_str != "Contatado" and email_str:
+                    pendentes += 1
+                    contatos_raw.append({
+                        "Nome": nome_str,
+                        "E-mail": email_str,
+                        "Status": status_str or "Aguardando",
+                    })
+            contatos_envio = contatos_raw[:daily_limit]
+            try:
+                print(f"[api/send] total={total} pendentes={pendentes} a_enviar={len(contatos_envio)} limite={daily_limit}")
+            except Exception:
+                pass
         except Exception:
             traceback.print_exc()
-            return jsonify({"error": "Falha ao ler o Excel. Verifique o formato (.xlsx) e as colunas."}), 400
-
-        # Normalização de nomes de colunas (case-insensitive, remove pontuação simples)
-        def _norm(s: str) -> str:
-            return (
-                str(s)
-                .strip()
-                .lower()
-                .replace("-", "")
-                .replace("_", "")
-                .replace(" ", "")
-            )
-
-        colmap = {c: _norm(c) for c in df.columns}
-        email_col = None
-        nome_col = None
-        status_col = None
-        for original, normed in colmap.items():
-            # qualquer coluna que contenha 'mail' será considerada email
-            if "mail" in normed and email_col is None:
-                email_col = original
-            if normed in {"nome", "name"}:
-                nome_col = original
-            if normed == "status":
-                status_col = original
-
-        # Renomear para padrão se encontrado
-        if email_col and email_col != "E-mail":
-            df.rename(columns={email_col: "E-mail"}, inplace=True)
-            email_col = "E-mail"
-        if nome_col and nome_col != "Nome":
-            df.rename(columns={nome_col: "Nome"}, inplace=True)
-            nome_col = "Nome"
-        if status_col and status_col != "Status":
-            df.rename(columns={status_col: "Status"}, inplace=True)
-            status_col = "Status"
-
-        # Se Status ausente, criar
-        if "Status" not in df.columns:
-            df["Status"] = "Aguardando"
-
-        # Garantir coluna de e-mail
-        if "E-mail" not in df.columns:
-            return jsonify({"error": "Planilha inválida: coluna de e-mail ausente. Use 'E-mail' ou 'Email'."}), 400
-
-        # Normalizar coluna de e-mail (preencher vazios antes de converter para string)
-        df["E-mail"] = df["E-mail"].fillna("")
-        df["E-mail"] = df["E-mail"].astype(str).str.strip()
-
-        # Filtrar registros elegíveis: não contatados e com e-mail preenchido
-        df_pend = df[(df["Status"] != "Contatado") & (df["E-mail"] != "")].copy()
-        df_envio = df_pend.head(daily_limit).copy()
-        # Debug leve (contagens) — aparece no console do Flask
-        try:
-            print(f"[api/send] total={len(df)} pendentes={len(df_pend)} a_enviar={len(df_envio)} limite={daily_limit}")
-        except Exception:
-            pass
+            return jsonify({"error": "Falha ao ler o Excel (openpyxl). Verifique o formato (.xlsx) e as colunas."}), 400
 
         results = []
         # Escolher intervalo adequado ao ambiente
         intervalo_envio = 0 if is_prod else SEND_INTERVAL
 
         for i, sucesso, email_dest in enviar_em_lote(
-            df_envio,
+            contatos_envio,
             subject,
             text_template,
             intervalo=intervalo_envio,
@@ -189,7 +186,7 @@ def api_send():
             results.append({"index": int(i) if isinstance(i, (int, float)) else str(i), "email": email, "success": bool(sucesso), "status": status})
 
         summary = {
-            "requested": len(df_envio),
+            "requested": len(contatos_envio),
             "sent_ok": sum(1 for r in results if r["success"]),
             "failed": sum(1 for r in results if not r["success"]),
             "limit": daily_limit,
