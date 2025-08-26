@@ -24,11 +24,8 @@ def after_request(response):
     response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
     return response
 
-# CORS configuration for production
-if os.getenv('VERCEL_ENV') == 'production':
-    CORS(app, origins=['https://*.vercel.app'])
-else:
-    CORS(app)
+# CORS configuration (restrito à API) — padrão seguro e compatível com Flask-CORS
+CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 @app.route("/")
 def index():
@@ -105,10 +102,14 @@ def api_send():
             from openpyxl import load_workbook
             wb = load_workbook(io.BytesIO(data), read_only=True, data_only=True)
             ws = wb.active
-            rows = list(ws.iter_rows(values_only=True))
-            if not rows:
+            if ws is None:
+                return jsonify({"error": "Não foi possível acessar a primeira planilha"}), 400
+            row_iter = ws.iter_rows(values_only=True)
+            try:
+                first = next(row_iter)
+            except StopIteration:
                 return jsonify({"error": "Planilha vazia"}), 400
-            headers = [str(h).strip() if h is not None else "" for h in rows[0]]
+            headers = [str(h).strip() if h is not None else "" for h in first]
             # Normalização de nomes de colunas
             def _norm(s: str) -> str:
                 return (
@@ -137,7 +138,7 @@ def api_send():
             contatos_raw = []
             total = 0
             pendentes = 0
-            for r in rows[1:]:
+            for r in row_iter:
                 total += 1
                 nome_val = (r[idx_nome] if idx_nome is not None and idx_nome < len(r) else "") if r else ""
                 email_val = (r[idx_email] if idx_email is not None and idx_email < len(r) else "") if r else ""
@@ -152,6 +153,9 @@ def api_send():
                         "E-mail": email_str,
                         "Status": status_str or "Aguardando",
                     })
+                    if len(contatos_raw) >= daily_limit:
+                        # já coletamos o necessário para envio
+                        break
             contatos_envio = contatos_raw[:daily_limit]
             try:
                 print(f"[api/send] total={total} pendentes={pendentes} a_enviar={len(contatos_envio)} limite={daily_limit}")
