@@ -20,11 +20,77 @@ if os.environ.get('VERCEL_ENV') == 'production':
     application.config.update(PROPAGATE_EXCEPTIONS=True)
 
 # Handler para Vercel serverless
-from flask import request as flask_request
+import io
+import json
+from urllib.parse import parse_qs
 
-def handler(request, context):
+def handler(event, context):
     """Função handler para ambiente serverless do Vercel"""
-    return application(request['headers'], request['body'])
+    # Extrair informações da requisição
+    method = event.get('method', 'GET')
+    path = event.get('path', '/')
+    headers = event.get('headers', {})
+    body = event.get('body', '')
+    query = event.get('query', {})
+    
+    # Preparar o ambiente WSGI
+    environ = {
+        'wsgi.input': io.BytesIO(body.encode('utf-8') if isinstance(body, str) else body),
+        'wsgi.version': (1, 0),
+        'wsgi.url_scheme': 'https',
+        'wsgi.multithread': False,
+        'wsgi.multiprocess': False,
+        'wsgi.run_once': False,
+        'SERVER_SOFTWARE': 'Vercel',
+        'REQUEST_METHOD': method,
+        'PATH_INFO': path,
+        'QUERY_STRING': '&'.join([f"{k}={v}" for k, v in query.items()]) if isinstance(query, dict) else query,
+        'SERVER_NAME': 'vercel',
+        'SERVER_PORT': '443',
+        'CONTENT_LENGTH': str(len(body) if body else 0),
+    }
+    
+    # Adicionar headers ao ambiente
+    for key, value in headers.items():
+        key = key.upper().replace('-', '_')
+        if key not in ('CONTENT_TYPE', 'CONTENT_LENGTH'):
+            key = 'HTTP_' + key
+        environ[key] = value
+    
+    # Capturar a resposta
+    response_body = []
+    response_headers = []
+    response_status = ['200 OK']
+    
+    def start_response(status, headers, exc_info=None):
+        response_status[0] = status
+        response_headers.extend(headers)
+    
+    # Executar a aplicação Flask
+    result = application(environ, start_response)
+    response_body = b''.join(result)
+    
+    # Extrair código de status
+    status_code = int(response_status[0].split(' ')[0])
+    
+    # Preparar headers para resposta
+    headers_dict = {}
+    for header in response_headers:
+        headers_dict[header[0]] = header[1]
+    
+    # Garantir CORS headers
+    headers_dict.update({
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, X-Requested-With, Accept'
+    })
+    
+    # Retornar resposta no formato esperado pela Vercel
+    return {
+        'statusCode': status_code,
+        'headers': headers_dict,
+        'body': response_body.decode('utf-8')
+    }
 
 # Execução local
 if __name__ == "__main__":

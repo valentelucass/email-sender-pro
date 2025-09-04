@@ -29,6 +29,8 @@ Foram implementadas as seguintes correções para resolver problemas de compatib
 
 5. **Suporte a Métodos HTTP**: Adicionado suporte explícito ao método OPTIONS no endpoint `/api/send` para resolver o erro 405 (Method Not Allowed) em requisições cross-origin.
 
+6. **Correção do Erro FUNCTION_INVOCATION_FAILED**: Implementada solução para o erro de invocação de função na Vercel, ajustando o handler no arquivo `api/index.py` para processar corretamente o formato de entrada e saída esperado pela plataforma e adicionando dependências ausentes no arquivo `requirements.txt`. Para mais detalhes, consulte o arquivo [VERCEL_TROUBLESHOOTING.md](VERCEL_TROUBLESHOOTING.md).
+
 ## 🚀 Primeiros Passos
 
 ### Pré-requisitos
