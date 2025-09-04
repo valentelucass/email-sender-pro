@@ -1,0 +1,12 @@
+{
+  "name": "email-sender-pro",
+  "version": "1.0.0",
+  "description": "Aplicação para envio de emails em massa com personalização",
+  "scripts": {
+    "build": "bash ./build.sh"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "private": true
+}

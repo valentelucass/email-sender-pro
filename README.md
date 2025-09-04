@@ -166,6 +166,27 @@ O projeto foi otimizado para funcionar em ambiente serverless da Vercel:
    - Clique em "Deploy" e aguarde a conclusão
    - O Vercel usará automaticamente o arquivo `vercel.json` para configurar o projeto
 
+### Solucionando Problemas de Deploy no Vercel
+
+Se encontrar falhas no deploy, tente estas soluções:
+
+1. **Verifique os logs de build**: Revise os logs para identificar mensagens de erro específicas.
+
+2. **Versão do Python**: Certifique-se que o arquivo `runtime.txt` contém `python-3.9` (não apenas `3.9`).
+
+3. **Compatibilidade de pacotes**: Verifique se todos os pacotes em `requirements.txt` são compatíveis com Python 3.9.
+
+4. **Configuração de build**: Use o script `build.sh` fornecido que configura corretamente a estrutura de diretórios de saída do Vercel.
+
+5. **Estrutura de arquivos**: Garanta que seu projeto segue a estrutura esperada com `api/index.py` como ponto de entrada da função serverless.
+
+6. **Deploy manual**: Tente usar o Vercel CLI com:
+   ```
+   vercel --prod
+   ```
+
+7. **Sobrescrever configuração**: Se tudo falhar, use o diretório `.vercel` fornecido neste repositório que contém uma estrutura de saída pré-configurada.
+
 ### Variáveis de Ambiente
 
 Crie um arquivo `.env` na raiz do projeto:
