@@ -142,6 +142,30 @@ O projeto foi otimizado para funcionar em ambiente serverless da Vercel:
 - Interface adaptada para informar sobre as limitações
 - Variável de ambiente `VERCEL_EMAIL_LIMIT` para ajustar o limite de emails
 
+### Deploy no Vercel
+
+1. **Crie uma conta na Vercel**
+   - Acesse [vercel.com](https://vercel.com) e crie uma conta ou faça login
+
+2. **Conecte seu repositório**
+   - Importe o projeto do GitHub, GitLab ou Bitbucket
+   - Ou use o Vercel CLI para deploy direto
+
+3. **Configure as variáveis de ambiente**
+   - No dashboard da Vercel, vá para seu projeto > Settings > Environment Variables
+   - Adicione as mesmas variáveis do arquivo `.env.example`
+   - Não é necessário adicionar `FLASK_ENV` ou `DEBUG_SMTP` em produção
+
+4. **Configurações de build**
+   - Framework Preset: Other
+   - Build Command: `pip install -r requirements.txt`
+   - Output Directory: Deixe em branco
+   - Install Command: Deixe em branco
+
+5. **Deploy**
+   - Clique em "Deploy" e aguarde a conclusão
+   - O Vercel usará automaticamente o arquivo `vercel.json` para configurar o projeto
+
 ### Variáveis de Ambiente
 
 Crie um arquivo `.env` na raiz do projeto:

@@ -6,8 +6,8 @@
       "use": "@vercel/python"
     },
     {
-      "src": "web-next/package.json",
-      "use": "@vercel/next"
+      "src": "web/**",
+      "use": "@vercel/static"
     }
   ],
   "routes": [

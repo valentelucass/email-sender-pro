@@ -1,0 +1,40 @@
+# Arquivos e diretórios a serem ignorados no deploy do Vercel
+
+# Ambiente virtual
+venv/
+.venv/
+env/
+
+# Arquivos de cache Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Arquivos de desenvolvimento
+.git/
+.github/
+.gitignore
+.pytest_cache/
+.coverage
+
+# Arquivos de ambiente local
+.env.local
+
+# Arquivos de log
+*.log
+
+# Arquivos temporários
+*.tmp
+*.temp
+
+# Arquivos de teste
+tests/
+
+# Arquivos de documentação
+docs/
+
+# Arquivos de IDE
+.vscode/
+.idea/
+*.swp
+*.swo
