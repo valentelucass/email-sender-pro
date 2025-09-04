@@ -166,7 +166,7 @@ O projeto foi otimizado para funcionar em ambiente serverless da Vercel:
    - Clique em "Deploy" e aguarde a conclusão
    - O Vercel usará automaticamente o arquivo `vercel.json` para configurar o projeto
 
-### Solucionando Problemas de Deploy no Vercel
+### Troubleshooting Vercel Deployment
 
 Se encontrar falhas no deploy, tente estas soluções:
 
@@ -180,12 +180,27 @@ Se encontrar falhas no deploy, tente estas soluções:
 
 5. **Estrutura de arquivos**: Garanta que seu projeto segue a estrutura esperada com `api/index.py` como ponto de entrada da função serverless.
 
-6. **Deploy manual**: Tente usar o Vercel CLI com:
+6. **Conflitos de configuração**: O Vercel não permite usar as propriedades `builds` e `functions` juntas no mesmo arquivo de configuração. Use a propriedade `config` dentro de cada build para definir configurações específicas:
+   ```json
+   {
+     "builds": [
+       {
+         "src": "api/index.py",
+         "use": "@vercel/python",
+         "config": {
+           "maxDuration": 300
+         }
+       }
+     ]
+   }
+   ```
+
+7. **Deploy manual**: Tente usar o Vercel CLI com:
    ```
    vercel --prod
    ```
 
-7. **Sobrescrever configuração**: Se tudo falhar, use o diretório `.vercel` fornecido neste repositório que contém uma estrutura de saída pré-configurada.
+8. **Sobrescrever configuração**: Se tudo falhar, use o diretório `.vercel` fornecido neste repositório que contém uma estrutura de saída pré-configurada.
 
 ### Variáveis de Ambiente
 
