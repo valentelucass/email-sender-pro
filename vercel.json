@@ -6,13 +6,20 @@
       "use": "@vercel/python"
     },
     {
-      "src": "web/*",
-      "use": "@vercel/static"
+      "src": "web-next/package.json",
+      "use": "@vercel/next"
     }
   ],
   "routes": [
-    { "src": "/api/(.*)", "dest": "/api/index.py" },
-    { "src": "/", "dest": "/web/index.html" },
+    { 
+      "src": "/api/(.*)", 
+      "dest": "/api/index.py",
+      "headers": {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+        "Access-Control-Allow-Headers": "X-Requested-With, Content-Type, Accept"
+      }
+    },
     { "src": "/(.*)", "dest": "/web/$1" }
   ],
   "env": {
@@ -22,7 +29,7 @@
   },
   "functions": {
     "api/*.py": {
-      "maxDuration": 60
+      "maxDuration": 300
     }
   },
   "buildCommand": "pip install -r requirements.txt"

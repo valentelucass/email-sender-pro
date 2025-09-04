@@ -27,6 +27,15 @@ def after_request(response):
 # CORS configuration (restrito à API) — padrão seguro e compatível com Flask-CORS
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 
+# Manipulador específico para requisições OPTIONS para resolver problemas de CORS
+@app.route('/api/<path:path>', methods=['OPTIONS'])
+def options_handler(path):
+    response = app.make_default_options_response()
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type, X-Requested-With, Accept'
+    return response
+
 @app.route("/")
 def index():
     return send_from_directory(app.static_folder, "index.html")
@@ -51,8 +60,15 @@ def health():
     return jsonify({"status": "ok"}), 200
 
 
-@app.route("/api/send", methods=["POST"])
+@app.route("/api/send", methods=["POST", "OPTIONS"])
 def api_send():
+    # Lidar com requisições OPTIONS para CORS
+    if request.method == "OPTIONS":
+        response = app.make_default_options_response()
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        response.headers['Access-Control-Allow-Methods'] = 'POST, OPTIONS'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type, X-Requested-With, Accept'
+        return response
     try:
         # Arquivo Excel
         if "file" not in request.files:
@@ -84,10 +100,12 @@ def api_send():
             daily_limit = CONF_DAILY_LIMIT
         daily_limit = max(0, min(100, daily_limit))
 
-        # Em ambientes serverless (Vercel), evite timeouts: cap de 1 e sem espera
+        # Em ambientes serverless (Vercel), evite timeouts: cap ajustável e sem espera
         is_prod = os.getenv('VERCEL_ENV') == 'production'
         if is_prod:
-            daily_limit = min(daily_limit, 1)
+            # Permitimos até 5 emails por requisição na Vercel, mas com aviso ao usuário
+            vercel_limit = int(os.getenv('VERCEL_EMAIL_LIMIT', '5'))
+            daily_limit = min(daily_limit, vercel_limit)
 
         # Validacoes básicas
         if not subject:
@@ -183,6 +201,7 @@ def api_send():
             from_email=from_email,
             from_name=from_name,
             reply_to=reply_to,
+            is_serverless=is_prod,
         ):
             # Captura e-mail retornado pelo gerador (compatível com iteráveis não-DataFrame)
             email = email_dest
@@ -194,6 +213,9 @@ def api_send():
             "sent_ok": sum(1 for r in results if r["success"]),
             "failed": sum(1 for r in results if not r["success"]),
             "limit": daily_limit,
+            "is_vercel": is_prod,
+            "vercel_limit": vercel_limit if is_prod else None,
+            "message": "Na Vercel, o envio é limitado a {} emails por requisição. Para enviar mais emails, faça múltiplas requisições.".format(vercel_limit) if is_prod else None
         }
 
         return jsonify({"summary": summary, "results": results})

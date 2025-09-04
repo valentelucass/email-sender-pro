@@ -1,5 +1,5 @@
 const form = document.getElementById("send-form")
-const API_BASE = location.port && location.port !== "8000" ? "http://localhost:8000" : ""
+const API_BASE = location.port === "5500" ? "http://localhost:8000" : ""
 const statusEl = document.getElementById("status")
 const logEl = document.getElementById("log")
 const btn = document.getElementById("send-btn")
@@ -256,6 +256,11 @@ form.addEventListener("submit", async (e) => {
     log(`   • Falhas: ${summary.failed}`, summary.failed > 0 ? "warning" : "info")
     log(`   • Taxa de sucesso: ${successRate}%`, "info")
     log(`   • Limite diário: ${summary.limit}`, "info")
+    
+    // Exibir mensagem de limitação da Vercel se aplicável
+    if (summary.is_vercel && summary.message) {
+      log(`\n⚠️ ${summary.message}`, "warning")
+    }
 
     // Log individual results
     if (data.results && data.results.length > 0) {
@@ -271,9 +276,15 @@ form.addEventListener("submit", async (e) => {
       celebrateSuccess(successRate)
     }
   } catch (err) {
-    updateStatus(`❌ Erro: ${err.message}`, "error")
-    log(`💥 Erro durante o envio: ${err.message}`, "error")
-    log("🔧 Verifique suas configurações e tente novamente.", "warning")
+    if (err.message === "Failed to fetch") {
+      updateStatus(`❌ Erro de conexão com o servidor. Verifique se o servidor está online.`, "error")
+      log(`💥 Erro de conexão: Não foi possível conectar ao servidor API`, "error")
+      log("🔧 Verifique se o servidor está rodando e se não há problemas de CORS.", "warning")
+    } else {
+      updateStatus(`❌ Erro: ${err.message}`, "error")
+      log(`💥 Erro durante o envio: ${err.message}`, "error")
+      log("🔧 Verifique suas configurações e tente novamente.", "warning")
+    }
   } finally {
     btn.disabled = false
     btn.style.transform = "scale(1)"

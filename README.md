@@ -15,6 +15,20 @@ image: foto.png
 
 Ferramenta web para envio de e-mails em massa de forma simples e eficiente. Desenvolvida para facilitar o disparo de comunicações personalizadas para listas de contatos.
 
+## 🔧 Correções de Compatibilidade com Vercel
+
+Foram implementadas as seguintes correções para resolver problemas de compatibilidade com o ambiente Vercel:
+
+1. **Configuração de CORS**: Adicionados cabeçalhos CORS específicos no `vercel.json` e manipuladores de requisições OPTIONS no `app.py` para garantir que as requisições cross-origin funcionem corretamente.
+
+2. **Rotas Estáticas**: Configuração de rotas no `vercel.json` para servir corretamente os arquivos estáticos da pasta `web/`.
+
+3. **Tratamento de Erros**: Melhorado o tratamento do erro "Failed to fetch" no frontend para fornecer mensagens mais claras aos usuários.
+
+4. **Configuração da API**: Ajustada a configuração da API_BASE no frontend para funcionar em diferentes ambientes (desenvolvimento local na porta 5500, servidor local na porta 8000 e Vercel).
+
+5. **Suporte a Métodos HTTP**: Adicionado suporte explícito ao método OPTIONS no endpoint `/api/send` para resolver o erro 405 (Method Not Allowed) em requisições cross-origin.
+
 ## 🚀 Primeiros Passos
 
 ### Pré-requisitos
@@ -102,7 +116,7 @@ Exemplo:
    - Revise as configurações
    - Clique em "Enviar"
    - Acompanhe o progresso na tela
-   - Observação (Vercel produção): uma chamada envia até 1 email (proteção contra timeout). Para mais envios, repita o processo.
+   - Observação (Vercel produção): uma chamada envia até 5 emails (proteção contra timeout). Para mais envios, repita o processo.
 
 ## 🛠️ Desenvolvimento
 
@@ -118,6 +132,16 @@ email-sender-pro/
 └── vercel.json      # Configuração do Vercel
 ```
 
+### Otimizações para Vercel
+
+O projeto foi otimizado para funcionar em ambiente serverless da Vercel:
+
+- Tempo máximo de execução aumentado para 300 segundos (5 minutos)
+- Limite configurável de emails por requisição (padrão: 5)
+- Remoção de esperas entre envios em ambiente serverless
+- Interface adaptada para informar sobre as limitações
+- Variável de ambiente `VERCEL_EMAIL_LIMIT` para ajustar o limite de emails
+
 ### Variáveis de Ambiente
 
 Crie um arquivo `.env` na raiz do projeto:
@@ -125,6 +149,7 @@ Crie um arquivo `.env` na raiz do projeto:
 ```env
 FLASK_ENV=development
 SECRET_KEY=sua_chave_secreta_aqui
+VERCEL_EMAIL_LIMIT=5  # Limite de emails por requisição na Vercel
 ```
 
 ## 🔒 Segurança
@@ -136,7 +161,8 @@ SECRET_KEY=sua_chave_secreta_aqui
 ## ⚠️ Limitações
 
 - Limite de 100 e-mails por dia (limitação do Gmail)
-- Em produção (Vercel), cada requisição envia até 1 email para evitar timeouts
+- Em produção (Vercel), cada requisição envia até 5 emails para evitar timeouts
+- O tempo máximo de execução na Vercel foi configurado para 300 segundos (5 minutos)
 - Tamanho máximo de anexo: 25MB
 - Recomenda-se testar com uma pequena lista antes de disparar para muitos contatos
 

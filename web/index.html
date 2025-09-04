@@ -136,6 +136,9 @@
           <h3>Informações do Remetente</h3>
         </div>
         <p class="muted" style="margin-top:-4px;margin-bottom:12px">O envio será feito pelo seu Gmail via SMTP. Suas respostas irão para o email informado abaixo (Reply-To).</p>
+        <div class="alert warning" style="margin-bottom:15px;padding:10px 15px;border-radius:8px;background-color:rgba(245, 158, 11, 0.1);border:1px solid rgba(245, 158, 11, 0.3);">
+          <strong>⚠️ Aviso:</strong> Na Vercel, o envio é limitado a 5 emails por requisição devido às restrições de ambiente serverless. Para enviar mais emails, faça múltiplas requisições.
+        </div>
         <div class="grid-2">
           <div class="input-group">
             <label for="from_name">Nome do Remetente</label>

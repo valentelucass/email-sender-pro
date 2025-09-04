@@ -213,6 +213,7 @@ def enviar_em_lote(
     from_email: str | None = None,
     from_name: str | None = None,
     reply_to: str | None = None,
+    is_serverless: bool = False,
 ):
     """Itera sobre os contatos (DataFrame ou lista de dicts), envia e-mail e espera intervalo.
 
@@ -258,10 +259,12 @@ def enviar_em_lote(
             reply_to=reply_to,
         )
         yield i, sucesso, destino
-        # jitter de 20% para evitar cadência fixa (mínimo 1s)
-        jitter = intervalo * random.uniform(-0.2, 0.2)
-        espera = max(1, intervalo + jitter)
-        time.sleep(espera)
+        # Em ambiente serverless, não fazemos espera para evitar timeout
+        if not is_serverless and intervalo > 0:
+            # jitter de 20% para evitar cadência fixa (mínimo 1s)
+            jitter = intervalo * random.uniform(-0.2, 0.2)
+            espera = max(1, intervalo + jitter)
+            time.sleep(espera)
 
 
 def _email_valido(email: str) -> bool:
